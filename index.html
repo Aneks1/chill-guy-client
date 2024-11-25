@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chill Guy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #899076;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(
+                45deg,
+                #899076 0%,
+                #707963 25%,
+                #656c59 50%,
+                #707963 75%,
+                #899076 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            opacity: 0.7;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+
+        .custom-cursor-follower {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.3s ease;
+        }
+
+        .intro-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #899076;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: transform 1s ease;
+        }
+
+        .intro-text {
+            color: white;
+            font-size: 3rem;
+            font-family: Arial, sans-serif;
+            border-right: 2px solid white;
+            padding-right: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+            animation: typing 2s steps(14) forwards;
+        }
+
+        .slide-up {
+            transform: translateY(-100%);
+        }
+
+        .main-content {
+            opacity: 0;
+            transition: opacity 1s ease;
+            width: 100%;
+            height: 100%;
+        }
+
+        .show-content {
+            opacity: 1;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 275px }
+        }
+
+        .character-container {
+            perspective: 1500px;
+            width: 300px;
+            height: 300px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .character {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .character img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            backface-visibility: hidden;
+        }
+
+        .container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            z-index: 1;
+        }
+
+        .input-box {
+            margin-top: 20px;
+            width: 500px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.1),
+                0 8px 30px rgba(0,0,0,0.05),
+                inset 0 0 2px rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .input-box:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 
+                0 6px 20px rgba(0,0,0,0.15),
+                0 10px 40px rgba(0,0,0,0.08),
+                inset 0 0 3px rgba(255,255,255,0.8);
+            transform: translateY(-2px);
+        }
+
+        #audioControl {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #audioControl:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .social-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-button {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .ripple {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="noise"></div>
+    <div class="custom-cursor"></div>
+    <div class="custom-cursor-follower"></div>
+
+    <!-- Intro Animation -->
+    <div class="intro-container">
+        <div class="intro-text">Just a chill AI</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <audio id="bgMusic" loop preload="auto" autoplay="true" playsinline>
+            <source src="audio/background.mp3" type="audio/mp3">
+        </audio>
+        
+        <div class="social-buttons">
+            <a href="https://twitter.com/intent/tweet?text=Check%20out%20this%20cool%20Chill%20Guy!" target="_blank" class="social-button">
+                <img src="images/x-logo.png" alt="X" class="social-icon">
+            </a>
+        </div>
+
+        <button id="audioControl" onclick="toggleAudio()">🔊</button>
+
+        <div class="container">
+            <div class="character-container" id="characterContainer">
+                <div class="character">
+                    <img id="character" src="images/closed-mouth.png" alt="Character">
+                </div>
+            </div>
+            <input type="text" id="userInput" class="input-box" placeholder="Message Chill Guy..." onkeypress="handleKeyPress(event)">
+        </div>
+    </div>
+    <script>
+        // Intro Animation and Audio Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            const intro = document.querySelector('.intro-container');
+            const mainContent = document.querySelector('.main-content');
+            
+            setTimeout(() => {
+                intro.classList.add('slide-up');
+                mainContent.classList.add('show-content');
+            }, 2500);
+
+            initAudio();
+        });
+
+        // Improved Audio Autoplay
+        function initAudio() {
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.2;
+            
+            // Create a fake user interaction event
+            const simulatedClick = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
+            
+            // Function to force play
+            const forcePlay = async () => {
+                try {
+                    await bgMusic.play();
+                    isPlaying = true;
+                    audioControl.textContent = '🔈';
+                } catch (err) {
+                    // If autoplay fails, try again on user interaction
+                    document.addEventListener('click', () => {
+                        bgMusic.play();
+                        isPlaying = true;
+                        audioControl.textContent = '🔈';
+                    }, { once: true });
+                }
+            };
+
+            // Try multiple methods to auto-start the audio
+            document.dispatchEvent(simulatedClick);
+            forcePlay();
+            
+            // Additional backup triggers
+            window.addEventListener('load', forcePlay);
+            document.addEventListener('DOMContentLoaded', forcePlay);
+        }
+
+        // 3D Effect
+        const character = document.querySelector('.character');
+        const container = document.querySelector('.character-container');
+
+        document.addEventListener('mousemove', (e) => {
+            if (!container || !character) return;
+
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left - rect.width / 2;
+            const mouseY = e.clientY - rect.top - rect.height / 2;
+            
+            const rotateX = (mouseY / (rect.height / 2)) * -10;
+            const rotateY = (mouseX / (rect.width / 2)) * 10;
+
+            character.style.transform = `
+                rotateX(${rotateX}deg)
+                rotateY(${rotateY}deg)
+                translateZ(10px)
+            `;
+        });
+
+        container.addEventListener('mouseleave', () => {
+            character.style.transform = 'rotateX(0) rotateY(0) translateZ(0)';
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.custom-cursor');
+        const cursorFollower = document.querySelector('.custom-cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            cursorFollower.style.left = e.clientX - 10 + 'px';
+            cursorFollower.style.top = e.clientY - 10 + 'px';
+        });
+
+        // Hover effects for interactive elements
+        document.querySelectorAll('a, button, input, .character').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(1.5)';
+                cursorFollower.style.transform = 'scale(1.5)';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursorFollower.style.transform = 'scale(1)';
+            });
+        });
+
+        // Main functionality
+        const closedMouthImage = 'images/closed-mouth.png';
+        const openMouthImage = 'images/open-mouth.png';
+        const characterImg = document.getElementById('character');
+        const userInput = document.getElementById('userInput');
+        const bgMusic = document.getElementById('bgMusic');
+        const audioControl = document.getElementById('audioControl');
+        let isPlaying = false;
+
+        function toggleAudio() {
+            if (isPlaying) {
+                bgMusic.pause();
+                audioControl.textContent = '🔊';
+            } else {
+                bgMusic.play();
+                bgMusic.volume = 0.2;
+                audioControl.textContent = '🔈';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Ripple effect
+        document.addEventListener('click', (e) => {
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            ripple.style.left = e.clientX + 'px';
+            ripple.style.top = e.clientY + 'px';
+            document.body.appendChild(ripple);
+            ripple.addEventListener('animationend', () => ripple.remove());
+        });
+
+        function updateMouth(isOpen) {
+            characterImg.src = isOpen ? openMouthImage : closedMouthImage;
+        }
+
+        function speak(text) {
+            return new Promise((resolve) => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                let speaking = false;
+                let mouthTimer;
+
+                function animateMouth(word) {
+                    const duration = word.length * 60;
+                    updateMouth(true);
+                    
+                    if (mouthTimer) clearTimeout(mouthTimer);
+                    mouthTimer = setTimeout(() => {
+                        if (speaking) updateMouth(false);
+                    }, duration);
+                }
+
+                utterance.onstart = () => {
+                    speaking = true;
+                    if (isPlaying) bgMusic.volume = 0.05;
+                };
+
+                utterance.onend = () => {
+                    speaking = false;
+                    clearTimeout(mouthTimer);
+                    updateMouth(false);
+                    if (isPlaying) bgMusic.volume = 0.2;
+                    resolve();
+                };
+
+                utterance.onboundary = (event) => {
+                    if (event.name === 'word' && speaking) {
+                        const word = text.slice(event.charIndex).split(/[\s,.!?]+/)[0];
+                        animateMouth(word);
+                    }
+                };
+
+                utterance.pitch = 1 + (Math.random() * 0.2 - 0.1);
+                utterance.rate = 1;
+                utterance.volume = 1;
+
+                let voices = speechSynthesis.getVoices();
+                const voice = voices.find(v => 
+                    v.name.includes('Google') || 
+                    v.name.includes('Microsoft')
+                ) || voices[0];
+                utterance.voice = voice;
+
+                speechSynthesis.speak(utterance);
+            });
+        }
+
+        async function handleSubmit() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            try {
+                userInput.disabled = true;
+                
+                const response = await fetch('https://chill-guy-server-production.up.railway.app/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                await speak(data.response);
+                
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                userInput.disabled = false;
+                userInput.value = '';
+                userInput.focus();
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                handleSubmit();
+            }
+        }
+
+        // Initialize voice synthesis
+        speechSynthesis.getVoices();
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            speechSynthesis.getVoices();
+        });
+    </script>
+</body>
+</html>
