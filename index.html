@@ -262,12 +262,12 @@
     <!-- Main Content -->
     <div class="main-content">
         <audio id="bgMusic" loop preload="auto" autoplay="true" playsinline>
-            <source src="audio/background.mp3" type="audio/mp3">
+            <source src="public/audio/background.mp3" type="audio/mp3">
         </audio>
         
         <div class="social-buttons">
             <a href="https://twitter.com/intent/tweet?text=Check%20out%20this%20cool%20Chill%20Guy!" target="_blank" class="social-button">
-                <img src="images/x-logo.png" alt="X" class="social-icon">
+                <img src="public/images/x-logo.png" alt="X" class="social-icon">
             </a>
         </div>
 
@@ -276,7 +276,7 @@
         <div class="container">
             <div class="character-container" id="characterContainer">
                 <div class="character">
-                    <img id="character" src="images/closed-mouth.png" alt="Character">
+                    <img id="character" src="public/images/closed-mouth.png" alt="Character">
                 </div>
             </div>
             <input type="text" id="userInput" class="input-box" placeholder="Message Chill Guy..." onkeypress="handleKeyPress(event)">
@@ -384,8 +384,8 @@
         });
 
         // Main functionality
-        const closedMouthImage = 'images/closed-mouth.png';
-        const openMouthImage = 'images/open-mouth.png';
+        const closedMouthImage = 'public/images/closed-mouth.png';
+        const openMouthImage = 'public/images/open-mouth.png';
         const characterImg = document.getElementById('character');
         const userInput = document.getElementById('userInput');
         const bgMusic = document.getElementById('bgMusic');
